@@ -11,8 +11,9 @@ var processedFilesPath string
 
 func initializeConfig() {
 	// Read configuration from environment variables or use default values
-	allowedExtensions = strings.Split(os.Getenv("ALLOWED_EXTENSIONS"), ",")
-	if len(allowedExtensions) == 0 {
+	envAllowedExt := os.Getenv("ALLOWED_EXTENSIONS")
+	allowedExtensions = strings.Split(envAllowedExt, ",")
+	if envAllowedExt == "" || len(allowedExtensions) == 0 {
 		allowedExtensions = []string{".mp4", ".mkv", ".avi", ".wmv"}
 	}
 
