@@ -21,6 +21,7 @@ func main() {
 	for {
 		log.Printf("Scanning %s...\n", mediaPath)
 		filepath.Walk(mediaPath, func(path string, info os.FileInfo, err error) error {
+			log.Printf("Walking to %s", path)
 			if err != nil {
 				return err
 			}
