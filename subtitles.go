@@ -12,6 +12,7 @@ import (
 type SubtitleStream struct {
 	index    int
 	language string
+	subtype  string
 }
 
 func extractSubtitles(videoPath string, processedFilesPath string) {
@@ -39,8 +40,15 @@ func extractSubtitles(videoPath string, processedFilesPath string) {
 	// Extract subtitles for each stream
 	for _, stream := range subtitleStreams {
 		languageCode := getLanguageCode(stream.language)
-		outputPath := fmt.Sprintf("%s.%s.srt", videoPath[:len(videoPath)-len(filepath.Ext(videoPath))], languageCode)
-		cmd := exec.Command("ffmpeg", "-i", videoPath, "-map", fmt.Sprintf("0:%d", stream.index), outputPath)
+
+		// Extract the base name of the file
+		baseName := filepath.Base(videoPath)
+		outputPath := fmt.Sprintf("%s.%s.%s", strings.TrimSuffix(baseName, filepath.Ext(baseName)), languageCode, stream.subtype)
+
+		mapString := fmt.Sprintf("0:%d", stream.index)
+
+		log.Printf("ffmpeg -i %s -map %s -c copy %s", videoPath, mapString, outputPath)
+		cmd := exec.Command("ffmpeg", "-i", videoPath, "-map", mapString, "-c", "copy", outputPath)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
@@ -105,14 +113,13 @@ func parseSubtitleStreams(output string) []SubtitleStream {
 		var codecName string
 
 		_, err := fmt.Sscanf(line, "%d,%s,%s", &index, &codecName, &language)
-		log.Printf("index: %d, codecName: %s, language: %s", index, codecName, language)
+		if len(language) == 0 {
+			language = "english"
+		}
 		if err == nil && codecName == "subrip" && language != "" {
-			streams = append(streams, SubtitleStream{index: index, language: language})
+			streams = append(streams, SubtitleStream{index: index, language: language, subtype: "srt"})
 		} else if err == nil && codecName == "ass" {
-			// Handle cases where language information is not present
-			// You can assign a default language or skip the stream as needed
-			defaultLanguage := "english"
-			streams = append(streams, SubtitleStream{index: index, language: defaultLanguage})
+			streams = append(streams, SubtitleStream{index: index, language: language, subtype: "ass"})
 		}
 	}
 
