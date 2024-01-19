@@ -45,7 +45,8 @@ func extractSubtitles(videoPath string, processedFilesPath string) {
 
 		// Extract the base name of the file
 		baseName := filepath.Base(videoPath)
-		outputPath := fmt.Sprintf("%s.%s.%s", strings.TrimSuffix(baseName, filepath.Ext(baseName)), languageCode, stream.subtype)
+		relativePath := filepath.Dir(videoPath)
+		outputPath := fmt.Sprintf("%s/%s.%s.%s", relativePath, strings.TrimSuffix(baseName, filepath.Ext(baseName)), languageCode, stream.subtype)
 
 		mapString := fmt.Sprintf("0:%d", stream.index)
 
