@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -25,6 +26,7 @@ func main() {
 			return nil
 		})
 
+		log.Println("Sleeping for 5 minutes before scanning again")
 		// Sleep for 5 minutes before scanning again
 		time.Sleep(5 * time.Minute)
 	}
