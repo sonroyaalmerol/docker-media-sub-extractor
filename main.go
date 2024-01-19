@@ -11,6 +11,8 @@ import (
 var wg sync.WaitGroup
 
 func main() {
+	initializeConfig()
+
 	mediaPath := os.Getenv("MEDIA_PATH")
 	if mediaPath == "" {
 		log.Println("MEDIA_PATH environment variable not set.")
@@ -19,8 +21,6 @@ func main() {
 
 	// Create the processed files file if it doesn't exist
 	processedFilesPath := initializeProcessedFiles()
-
-	initializeConfig()
 
 	for {
 		filepath.Walk(mediaPath, func(path string, info os.FileInfo, err error) error {
