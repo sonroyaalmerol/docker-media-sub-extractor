@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,11 +18,11 @@ type SubtitleStream struct {
 func extractSubtitles(videoPath string, processedFilesPath string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	fmt.Printf("Extracting subtitles for: %s\n", videoPath)
+	log.Printf("Extracting subtitles for: %s\n", videoPath)
 
 	// Check if subtitles have already been extracted for this file
 	if hasBeenProcessed(videoPath, processedFilesPath) {
-		fmt.Printf("Subtitles already extracted for: %s\n", videoPath)
+		log.Printf("Subtitles already extracted for: %s\n", videoPath)
 		return
 	}
 
@@ -31,7 +32,7 @@ func extractSubtitles(videoPath string, processedFilesPath string, wg *sync.Wait
 
 	output, err := ffprobeCmd.Output()
 	if err != nil {
-		fmt.Printf("Error running ffprobe: %v\n", err)
+		log.Printf("Error running ffprobe: %v\n", err)
 		return
 	}
 
@@ -48,11 +49,11 @@ func extractSubtitles(videoPath string, processedFilesPath string, wg *sync.Wait
 
 		err := cmd.Run()
 		if err != nil {
-			fmt.Printf("Error extracting subtitles: %v\n", err)
+			log.Printf("Error extracting subtitles: %v\n", err)
 			return
 		}
 
-		fmt.Printf("Subtitles extracted successfully for stream %d (Language: %s)\n", stream.index, stream.language)
+		log.Printf("Subtitles extracted successfully for stream %d (Language: %s)\n", stream.index, stream.language)
 
 		// Mark the file as processed
 		markAsProcessed(videoPath, processedFilesPath)
@@ -62,7 +63,7 @@ func extractSubtitles(videoPath string, processedFilesPath string, wg *sync.Wait
 func hasBeenProcessed(filename string, processedFilesPath string) bool {
 	processedFiles, err := readProcessedFiles(processedFilesPath)
 	if err != nil {
-		fmt.Printf("Error reading processed files: %v\n", err)
+		log.Printf("Error reading processed files: %v\n", err)
 		return false
 	}
 
@@ -78,13 +79,13 @@ func hasBeenProcessed(filename string, processedFilesPath string) bool {
 func markAsProcessed(filename string, processedFilesPath string) {
 	file, err := os.OpenFile(processedFilesPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		fmt.Printf("Error marking file as processed: %v\n", err)
+		log.Printf("Error marking file as processed: %v\n", err)
 		return
 	}
 	defer file.Close()
 
 	if _, err := file.WriteString(filename + "\n"); err != nil {
-		fmt.Printf("Error marking file as processed: %v\n", err)
+		log.Printf("Error marking file as processed: %v\n", err)
 	}
 }
 

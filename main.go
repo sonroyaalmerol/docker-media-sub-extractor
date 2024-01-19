@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -11,9 +11,11 @@ import (
 var wg sync.WaitGroup
 
 func main() {
+	log.SetOutput(os.Stdout)
+
 	mediaPath := os.Getenv("MEDIA_PATH")
 	if mediaPath == "" {
-		fmt.Println("MEDIA_PATH environment variable not set.")
+		log.Println("MEDIA_PATH environment variable not set.")
 		os.Exit(1)
 	}
 
