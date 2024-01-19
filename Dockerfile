@@ -24,4 +24,4 @@ COPY --from=builder /app/extract_subtitles /app/extract_subtitles
 WORKDIR /app
 
 # Set the entry point for the container
-ENTRYPOINT ["./extract_subtitles"]
+CMD ["./extract_subtitles"]
