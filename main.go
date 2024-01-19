@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -9,12 +8,6 @@ import (
 
 func main() {
 	initializeConfig()
-
-	mediaPath := os.Getenv("MEDIA_PATH")
-	if mediaPath == "" {
-		log.Println("MEDIA_PATH environment variable not set.")
-		os.Exit(1)
-	}
 
 	// Create the processed files file if it doesn't exist
 	processedFilesPath := initializeProcessedFiles()

@@ -8,6 +8,7 @@ import (
 
 var allowedExtensions []string
 var processedFilesPath string
+var mediaPath string
 
 func initializeConfig() {
 	// Read configuration from environment variables or use default values
@@ -19,6 +20,11 @@ func initializeConfig() {
 	processedFilesPath = os.Getenv("PROCESSED_FILES_PATH")
 	if processedFilesPath == "" {
 		processedFilesPath = "/app/processed_files.txt"
+	}
+
+	mediaPath = os.Getenv("MEDIA_PATH")
+	if mediaPath == "" {
+		mediaPath = "/media"
 	}
 }
 
