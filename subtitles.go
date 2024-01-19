@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -103,26 +105,52 @@ func readProcessedFiles(processedFilesPath string) ([]string, error) {
 	return strings.Split(string(content), "\n"), nil
 }
 
+func parseInt(s string) int {
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		log.Printf("Error parsing integer: %v\n", err)
+		return 0
+	}
+	return val
+}
+
 func parseSubtitleStreams(output string) []SubtitleStream {
 	var streams []SubtitleStream
 
 	lines := splitLines(output)
 	for _, line := range lines {
-		var index int
 		var language string
 		var codecName string
 
-		_, err := fmt.Sscanf(line, "%d,%s,%s", &index, &codecName, &language)
-		if len(language) == 0 {
-			language = "english"
-		}
-		log.Printf("err: %s, codecName: %s, language: %s\n", err.Error(), codecName, language)
-		if err == nil && codecName == "subrip" {
-			log.Printf("index %d: appending subrip\n", index)
-			streams = append(streams, SubtitleStream{index: index, language: language, subtype: "srt"})
-		} else if err == nil && codecName == "ass" {
-			log.Printf("index %d: appending ass\n", index)
-			streams = append(streams, SubtitleStream{index: index, language: language, subtype: "ass"})
+		// Define a regular expression to extract values from the line
+		re := regexp.MustCompile(`(\d+),(\w+),(\w+)`)
+		matches := re.FindStringSubmatch(line)
+
+		// Check if the regex matched the line
+		if len(matches) >= 2 {
+			index := parseInt(matches[1])
+
+			if len(matches) >= 3 {
+				codecName = matches[2]
+			}
+			if len(matches) >= 4 {
+				language = matches[3]
+			}
+
+			if len(language) == 0 {
+				language = "english"
+			}
+			log.Printf("codecName: %s, language: %s\n", codecName, language)
+			if codecName == "subrip" {
+				log.Printf("index %d: appending subrip\n", index)
+				streams = append(streams, SubtitleStream{index: index, language: language, subtype: "srt"})
+			} else if codecName == "ass" {
+				log.Printf("index %d: appending ass\n", index)
+				streams = append(streams, SubtitleStream{index: index, language: language, subtype: "ass"})
+			}
+		} else {
+			// Log an error message for unexpected format
+			log.Printf("Error parsing subtitle stream: Unexpected format - %s\n", line)
 		}
 	}
 
