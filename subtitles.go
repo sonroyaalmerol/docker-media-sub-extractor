@@ -116,13 +116,17 @@ func parseSubtitleStreams(output string) []SubtitleStream {
 		if len(language) == 0 {
 			language = "english"
 		}
-		if err == nil && codecName == "subrip" && language != "" {
+		log.Printf("err: %s, codecName: %s, language: %s\n", err.Error(), codecName, language)
+		if err == nil && codecName == "subrip" {
+			log.Printf("index %d: appending subrip\n", index)
 			streams = append(streams, SubtitleStream{index: index, language: language, subtype: "srt"})
 		} else if err == nil && codecName == "ass" {
+			log.Printf("index %d: appending ass\n", index)
 			streams = append(streams, SubtitleStream{index: index, language: language, subtype: "ass"})
 		}
 	}
 
+	log.Println(streams)
 	return streams
 }
 
