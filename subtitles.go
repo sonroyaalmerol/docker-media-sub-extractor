@@ -27,7 +27,7 @@ func extractSubtitles(videoPath string, processedFilesPath string) {
 	}
 
 	// Run ffprobe to get information about subtitle streams
-	ffprobeCmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "s", "-show_entries", "stream=index,codec_name,language", "-of", "csv=p=0", videoPath)
+	ffprobeCmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "s", "-show_entries", "stream=index,codec_name:stream_tags=language", "-of", "csv=p=0", videoPath)
 	ffprobeCmd.Stderr = os.Stderr
 
 	output, err := ffprobeCmd.Output()
@@ -46,11 +46,16 @@ func extractSubtitles(videoPath string, processedFilesPath string) {
 		// Extract the base name of the file
 		baseName := filepath.Base(videoPath)
 		relativePath := filepath.Dir(videoPath)
-		outputPath := fmt.Sprintf("%s/%s.%s.%s", relativePath, strings.TrimSuffix(baseName, filepath.Ext(baseName)), languageCode, stream.subtype)
+		outputBaseName := strings.TrimSuffix(baseName, filepath.Ext(baseName))
+		outputPath := fmt.Sprintf("%s/%s.%s.%s", relativePath, outputBaseName, languageCode, stream.subtype)
+
+		if strings.ToLower(languageCode) == "eng" || strings.ToLower(languageCode) == "english" {
+			outputPath = fmt.Sprintf("%s/%s.%s.default.%s", relativePath, outputBaseName, languageCode, stream.subtype)
+		}
 
 		mapString := fmt.Sprintf("0:%d", stream.index)
 
-		log.Printf("ffmpeg -i %s -map %s -c copy %s", videoPath, mapString, outputPath)
+		log.Printf("ffmpeg -nostdin -hide_banner -loglevel quiet -i %s -map %s -c copy %s", videoPath, mapString, outputPath)
 		cmd := exec.Command("ffmpeg", "-i", videoPath, "-map", mapString, "-c", "copy", outputPath)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
