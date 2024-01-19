@@ -105,12 +105,13 @@ func parseSubtitleStreams(output string) []SubtitleStream {
 		var codecName string
 
 		_, err := fmt.Sscanf(line, "%d,%s,%s", &index, &codecName, &language)
+		log.Printf("index: %d, codecName: %s, language: %s", index, codecName, language)
 		if err == nil && codecName == "subrip" && language != "" {
 			streams = append(streams, SubtitleStream{index: index, language: language})
 		} else if err == nil && codecName == "ass" {
 			// Handle cases where language information is not present
 			// You can assign a default language or skip the stream as needed
-			defaultLanguage := "unknown"
+			defaultLanguage := "english"
 			streams = append(streams, SubtitleStream{index: index, language: defaultLanguage})
 		}
 	}
