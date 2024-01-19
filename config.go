@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -43,6 +44,7 @@ func initializeProcessedFiles() string {
 	if _, err := os.Stat(processedFilesPath); os.IsNotExist(err) {
 		file, err := os.Create(processedFilesPath)
 		if err != nil {
+			log.Print(err.Error())
 			os.Exit(1)
 		}
 		defer file.Close()
