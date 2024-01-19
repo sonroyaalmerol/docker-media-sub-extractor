@@ -4,11 +4,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 )
-
-var wg sync.WaitGroup
 
 func main() {
 	initializeConfig()
@@ -29,14 +26,11 @@ func main() {
 			}
 
 			if !info.IsDir() && hasAllowedExtension(info.Name()) {
-				wg.Add(1)
-				go extractSubtitles(path, processedFilesPath, &wg)
+				extractSubtitles(path, processedFilesPath)
 			}
 
 			return nil
 		})
-
-		wg.Wait() // Wait for all goroutines to finish before the next iteration
 
 		// Sleep for 5 minutes before scanning again
 		time.Sleep(5 * time.Minute)

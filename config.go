@@ -3,13 +3,11 @@ package main
 import (
 	"log"
 	"os"
-	"strconv"
 	"strings"
 )
 
 var allowedExtensions []string
 var processedFilesPath string
-var concurrency int
 
 func initializeConfig() {
 	// Read configuration from environment variables or use default values
@@ -22,21 +20,6 @@ func initializeConfig() {
 	if processedFilesPath == "" {
 		processedFilesPath = "/app/processed_files.txt"
 	}
-
-	concurrencyStr := os.Getenv("CONCURRENCY")
-	if concurrencyStr == "" {
-		concurrency = 4
-	} else {
-		concurrency = parseConcurrency(concurrencyStr)
-	}
-}
-
-func parseConcurrency(str string) int {
-	val, err := strconv.Atoi(str)
-	if err != nil {
-		return 4
-	}
-	return val
 }
 
 func initializeProcessedFiles() string {

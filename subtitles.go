@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"sync"
 )
 
 type SubtitleStream struct {
@@ -15,9 +14,7 @@ type SubtitleStream struct {
 	language string
 }
 
-func extractSubtitles(videoPath string, processedFilesPath string, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func extractSubtitles(videoPath string, processedFilesPath string) {
 	log.Printf("Extracting subtitles for: %s\n", videoPath)
 
 	// Check if subtitles have already been extracted for this file
@@ -43,7 +40,7 @@ func extractSubtitles(videoPath string, processedFilesPath string, wg *sync.Wait
 	for _, stream := range subtitleStreams {
 		languageCode := getLanguageCode(stream.language)
 		outputPath := fmt.Sprintf("%s.%s.srt", videoPath[:len(videoPath)-len(filepath.Ext(videoPath))], languageCode)
-		cmd := exec.Command("ffmpeg", "-i", videoPath, "-map", fmt.Sprintf("0:s:%d", stream.index), outputPath)
+		cmd := exec.Command("ffmpeg", "-i", videoPath, "-map", fmt.Sprintf("0:%d", stream.index), outputPath)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
@@ -110,6 +107,11 @@ func parseSubtitleStreams(output string) []SubtitleStream {
 		_, err := fmt.Sscanf(line, "%d,%s,%s", &index, &codecName, &language)
 		if err == nil && codecName == "subrip" && language != "" {
 			streams = append(streams, SubtitleStream{index: index, language: language})
+		} else if err == nil && codecName == "ass" {
+			// Handle cases where language information is not present
+			// You can assign a default language or skip the stream as needed
+			defaultLanguage := "unknown"
+			streams = append(streams, SubtitleStream{index: index, language: defaultLanguage})
 		}
 	}
 
