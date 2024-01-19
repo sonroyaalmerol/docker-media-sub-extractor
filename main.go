@@ -10,10 +10,16 @@ import (
 func main() {
 	initializeConfig()
 
+	mediaPath := os.Getenv("MEDIA_PATH")
+	if mediaPath == "" {
+		mediaPath = "/media"
+	}
+
 	// Create the processed files file if it doesn't exist
 	processedFilesPath := initializeProcessedFiles()
 
 	for {
+		log.Printf("Scanning %s...\n", mediaPath)
 		filepath.Walk(mediaPath, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
