@@ -123,17 +123,17 @@ func parseSubtitleStreams(output string) []SubtitleStream {
 		var codecName string
 
 		// Define a regular expression to extract values from the line
-		re := regexp.MustCompile(`(\d+),(\w+),(\w+)`)
+		re := regexp.MustCompile(`(\d+)(?:,(\w+))?(?:,(\w+))?`)
 		matches := re.FindStringSubmatch(line)
 
 		// Check if the regex matched the line
 		if len(matches) >= 2 {
 			index := parseInt(matches[1])
 
-			if len(matches) >= 3 {
+			if len(matches) >= 3 && matches[2] != "" {
 				codecName = matches[2]
 			}
-			if len(matches) >= 4 {
+			if len(matches) >= 4 && matches[3] != "" {
 				language = matches[3]
 			}
 
